@@ -61,6 +61,7 @@ public:
         return payoff->calculer(spot);
     }
     virtual double bs_price(double spot, double r, double sigma) const = 0;
+    virtual double delta(double spot, double r, double sigma) const = 0;
     virtual ~Option() = default;
 };
 
@@ -80,21 +81,27 @@ public:
         double d_2 = d_1 - sigma * std::sqrt(maturite);
         return spot * norm_cdf(d_1) - payoff->getStrike() * std::exp(-r * maturite) * norm_cdf(d_2);
     }
+    double delta(double spot, double r, double sigma) const override
+    {
+        double d_1 = (std::log(spot / payoff->getStrike()) + (r + 0.5 * sigma * sigma) * maturite) / (sigma * std::sqrt(maturite));
+        return norm_cdf(d_1);
+    }
 };
 
 class OptionPut : public Option
 {
-private:
-    double maturite;
-    std::unique_ptr<PayoffPut> payoff;
 
 public:
-    OptionCall(double T, double strike) : maturite(T), payoff(PayoffCall(strike));
+    OptionPut(double T, double strike) : Option(T, std::make_unique<PayoffPut>(strike)) {}
     double bs_price(double spot, double r, double sigma) const override
     {
-        double d_1 = (std::log(spot / payoff->strike) + (r + 0.5 * sigma * sigma) * maturite) / (sigma * std::sqrt(maturite));
+        double d_1 = (std::log(spot / payoff->getStrike()) + (r + 0.5 * sigma * sigma) * maturite) / (sigma * std::sqrt(maturite));
         double d_2 = d_1 - sigma * std::sqrt(maturite);
-        return payoff->strike * std::exp(-r * maturite) * norm_cdf(-d_2) - spot * norm_cdf(-d_1);
+        return payoff->getStrike() * std::exp(-r * maturite) * norm_cdf(-d_2) - spot * norm_cdf(-d_1);
+    }
+    double delta(double spot, double r, double sigma) const override {
+        double d_1 = (std::log(spot / payoff->getStrike()) + (r + 0.5 * sigma * sigma) * maturite) / (sigma * std::sqrt(maturite));
+        return -norm_cdf(-d_1);
     }
 };
 
@@ -102,9 +109,13 @@ public:
 
 int main()
 {
-    auto payoff = std::make_unique<PayoffCall>(100.0);
-    const OptionCall monOption(1.0, std::move(payoff));
-    std::cout << monOption.calculerPayoff(110.0) << "\n"; // calcul du payoff avec cours spot terminal S_T = 110.0 ;
-    std::cout << bs_price(100, 100, 1.0, 0.05, 0.2);
-    return 0;
+    double T = 1.0;
+    double strike = 100.0;
+    double spot = 100.0;
+    double r = 0.05;
+    double sigma = 0.2;
+    OptionPut put(T, strike);
+    OptionCall call(T, strike);
+    std::cout << "Prix de l'option put : " << put.bs_price(spot, r, sigma) << "\n";
+    std::cout << "prix de l'option call : " << call.bs_price(spot, r, sigma);
 }
