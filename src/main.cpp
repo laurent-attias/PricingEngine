@@ -1,15 +1,15 @@
 #include <iostream>
-#include <vector>
-#include <numeric>
-#include "utils.hpp"
+#include "../pricer/include/Option.hpp"
 
-int main() {
-    std::vector<int> values = {1, 2, 3, 4, 5};
-    int sum = std::accumulate(values.begin(), values.end(), 0);
-
-    std::cout << "Setup C++20 fonctionnel !" << std::endl;
-    std::cout << "Somme des valeurs (1..5) = " << sum << std::endl;
-    std::cout << "Test header (utils::add(10, 32)) = " << utils::add(10, 32) << std::endl;
-
-    return 0;
+int main()
+{
+    double T = 1.0;
+    double strike = 100.0;
+    double spot = 100.0;
+    double r = 0.05;
+    double sigma = 0.2;
+    OptionPut put(T, strike);
+    OptionCall call(T, strike);
+    std::cout << "rho Call : " << call.rho(spot, r, sigma) << "\n";
+    std::cout << "rho Put  : " << put.rho(spot, r, sigma) << "\n";
 }
