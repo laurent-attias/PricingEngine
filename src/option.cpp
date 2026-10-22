@@ -1,10 +1,11 @@
 #include <cmath>
+#include <random>
+#include <chrono>
 
 #include "../pricer/include/Option.hpp"
 #include "../pricer/include/MathUtils.hpp"
 
-
-double Option::d_1(double spot, double r, double sigma) const 
+double Option::d_1(double spot, double r, double sigma) const
 {
     return (std::log(spot / payoff->getStrike()) + (r + 0.5 * sigma * sigma) * maturite) / (sigma * std::sqrt(maturite));
 }
@@ -23,6 +24,24 @@ double Option::vega(double spot, double r, double sigma) const
     return spot * std::sqrt(maturite) * norm_pdf(d_1(spot, r, sigma));
 }
 
+double Option::mc_price(double spot, double r, double sigma, int N) const
+{
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 gen(static_cast<unsigned int>(seed));
+    std::normal_distribution<double> dist(0.0, 1.0);
+
+    double drift = (r - 0.5 * sigma * sigma) * maturite;
+    double vol_term = sigma * std::sqrt(maturite);
+    double sum = 0.0;
+    for (int i = 0; i < N; ++i)
+    {
+        double Z = dist(gen);
+        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double payoff_i = (*payoff)(spot_i);
+        sum += payoff_i;
+    }
+    return std::exp(-r * maturite) * sum / N;
+}
 
 double OptionCall::bs_price(double spot, double r, double sigma) const
 {
@@ -41,7 +60,6 @@ double OptionCall::rho(double spot, double r, double sigma) const
 {
     return payoff->getStrike() * maturite * std::exp(-r * maturite) * norm_cdf(d_2(spot, r, sigma));
 }
-
 
 double OptionPut::bs_price(double spot, double r, double sigma) const
 {

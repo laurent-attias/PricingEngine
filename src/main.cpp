@@ -8,8 +8,8 @@ int main()
     double spot = 100.0;
     double r = 0.05;
     double sigma = 0.2;
-    OptionPut put(T, strike);
+    int N = 100000;
     OptionCall call(T, strike);
-    std::cout << "rho Call : " << call.rho(spot, r, sigma) << "\n";
-    std::cout << "rho Put  : " << put.rho(spot, r, sigma) << "\n";
+    std::cout << "prix via Black-Scholes : " << call.bs_price(spot, r, sigma) << "\n";
+    std::cout << "prix via Monte-Carlo  : " << call.mc_price(spot, r, sigma, N) << "\n";
 }
