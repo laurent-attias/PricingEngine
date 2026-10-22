@@ -35,18 +35,22 @@ MonteCarloResult Option::mc_price(double spot, double r, double sigma, int N) co
     double actualization = std::exp(-r * maturite);
     double sum = 0.0;
     double sum_sq = 0.0;
-    for (int i = 0; i < N; ++i)
+    int M = N/2;
+    for (int i = 0; i < M; ++i)
     {
         double Z = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z);
-        double payoff_i = (*payoff)(spot_i);
+        double spot_i1 = spot * std::exp(drift + vol_term * Z);
+        double spot_i2 = spot * std::exp(drift - vol_term * Z);
+        double payoff_i1 = (*payoff)(spot_i1);
+        double payoff_i2 = (*payoff)(spot_i2);
+        double payoff_i = (payoff_i1 + payoff_i2) * 0.5;
         double actualized_flow_i = actualization*payoff_i;
         sum += actualized_flow_i ;
         sum_sq += actualized_flow_i * actualized_flow_i;
     }
-    double mean = sum / N;
-    double variance = 1.0/(N-1) * (sum_sq - N * mean * mean);
-    double error_margin = 1.96*std::sqrt(variance/N);
+    double mean = sum / M;
+    double variance = 1.0/(M-1) * (sum_sq - M * mean * mean);
+    double error_margin = 1.96*std::sqrt(variance/M);
     return MonteCarloResult {mean, mean - error_margin, mean + error_margin};
 }
 
