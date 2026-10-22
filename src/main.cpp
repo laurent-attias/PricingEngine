@@ -11,5 +11,7 @@ int main()
     int N = 100000;
     OptionCall call(T, strike);
     std::cout << "prix via Black-Scholes : " << call.bs_price(spot, r, sigma) << "\n";
-    std::cout << "prix via Monte-Carlo  : " << call.mc_price(spot, r, sigma, N) << "\n";
+    MonteCarloResult result = call.mc_price(spot, r, sigma, N);
+    std::cout << "prix via Monte-Carlo  : " << result.price << "\n";
+    std::cout << "intervalle de confiance : [" << result.lower_bound << "," << result.upper_bound << "]" << "\n";
 }

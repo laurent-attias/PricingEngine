@@ -24,7 +24,7 @@ double Option::vega(double spot, double r, double sigma) const
     return spot * std::sqrt(maturite) * norm_pdf(d_1(spot, r, sigma));
 }
 
-double Option::mc_price(double spot, double r, double sigma, int N) const
+MonteCarloResult Option::mc_price(double spot, double r, double sigma, int N) const
 {
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 gen(static_cast<unsigned int>(seed));
@@ -32,15 +32,22 @@ double Option::mc_price(double spot, double r, double sigma, int N) const
 
     double drift = (r - 0.5 * sigma * sigma) * maturite;
     double vol_term = sigma * std::sqrt(maturite);
+    double actualization = std::exp(-r * maturite);
     double sum = 0.0;
+    double sum_sq = 0.0;
     for (int i = 0; i < N; ++i)
     {
         double Z = dist(gen);
         double spot_i = spot * std::exp(drift + vol_term * Z);
         double payoff_i = (*payoff)(spot_i);
-        sum += payoff_i;
+        double actualized_flow_i = actualization*payoff_i;
+        sum += actualized_flow_i ;
+        sum_sq += actualized_flow_i * actualized_flow_i;
     }
-    return std::exp(-r * maturite) * sum / N;
+    double mean = sum / N;
+    double variance = 1.0/(N-1) * (sum_sq - N * mean * mean);
+    double error_margin = 1.96*std::sqrt(variance/N);
+    return MonteCarloResult {mean, mean - error_margin, mean + error_margin};
 }
 
 double OptionCall::bs_price(double spot, double r, double sigma) const
