@@ -19,5 +19,5 @@ public:
     MonteCarloResult price_v3(const Option& option, double spot, double r, double sigma) const;
 
     // approche pilote
-    MonteCarloResult price_v4(const Option& option, double spot, double r, double sigma) const;
+    MonteCarloResult price_v4(const Option& option, double spot, double r, double sigma, int n) const;
 };

@@ -98,3 +98,61 @@ MonteCarloResult MonteCarloPricer::price_v3(const Option& option, double spot, d
     double error_margin = 1.96*std::sqrt(var_Y_cv/N);
     return MonteCarloResult {mean_Y_cv, mean_Y_cv - error_margin, mean_Y_cv + error_margin};
 }
+
+MonteCarloResult MonteCarloPricer::price_v4(const Option& option, double spot, double r, double sigma, int n) const
+{
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 gen(static_cast<unsigned int>(seed));
+    std::normal_distribution<double> dist(0.0, 1.0);
+
+    double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
+    double vol_term = sigma * std::sqrt(option.getMaturite());
+    double actualization = std::exp(-r * option.getMaturite());
+
+    // phase pilote
+
+    double sum_Y = 0.0;
+    double sum_X = 0.0;
+    double sum_sq_Y = 0.0;
+    double sum_sq_X = 0.0;
+    double sum_YX = 0.0;
+    for (int i = 0; i < n; i++)
+    {
+        double Z = dist(gen);
+        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double X_i = actualization * spot_i;
+        double payoff_i = option.calculerPayoff(spot_i);
+        double Y_i = actualization*payoff_i;
+        sum_Y += Y_i;
+        sum_X += X_i;
+        sum_sq_Y += Y_i * Y_i;
+        sum_sq_X += X_i * X_i; 
+        sum_YX += Y_i * X_i;
+    }
+    double mean_Y = sum_Y / n;
+    double mean_X = sum_X / n;
+    double var_Y = 1.0/(n-1) * (sum_sq_Y - n * mean_Y * mean_Y);
+    double var_X = 1.0/(n-1) * (sum_sq_X - n * mean_X * mean_X);
+    double covar_YX = 1.0/(n-1) * (sum_YX - n * mean_X * mean_Y);
+    double c = covar_YX/var_X;
+
+    // phase principale
+
+    double sum_Y_cv = 0.0;
+    double sum_sq_Y_cv = 0.0;
+    for (int i = 0; i < N; i++)
+    {
+        double Z = dist(gen);
+        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double X_i = actualization * spot_i;
+        double payoff_i = option.calculerPayoff(spot_i);
+        double Y_i = actualization*payoff_i;
+        double Y_cv_i = Y_i - c*(X_i - spot);
+        sum_Y_cv += Y_cv_i;
+        sum_sq_Y_cv += Y_cv_i * Y_cv_i; 
+    }
+    double mean_Y_cv = sum_Y_cv / N;
+    double var_Y_cv = 1.0/(N-1) * (sum_sq_Y_cv - N * mean_Y_cv * mean_Y_cv);
+    double error_margin = 1.96*std::sqrt(var_Y_cv/N);
+    return MonteCarloResult {mean_Y_cv, mean_Y_cv - error_margin, mean_Y_cv + error_margin};
+}
