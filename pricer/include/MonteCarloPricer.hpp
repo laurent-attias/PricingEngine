@@ -1,3 +1,4 @@
+#pragma once
 #include "Option.hpp"
 
 class MonteCarloPricer
@@ -20,4 +21,13 @@ public:
 
     // approche pilote
     MonteCarloResult price_v4(const Option& option, double spot, double r, double sigma, int n) const;
+
+    // calcul des grecques
+
+    // calcul du Delta par bumping
+    MonteCarloResult delta_bumping(const Option& option, double spot, double r, double sigma, double epsilon) const;
+
+    // calcul du Delta par pathwise
+    MonteCarloResult delta_pathwise(const Option& option, double spot, double r, double sigma) const;
+
 };
