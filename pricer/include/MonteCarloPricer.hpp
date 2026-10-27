@@ -1,5 +1,10 @@
 #pragma once
+#include <random>
+#include <vector>
 #include "Option.hpp"
+
+using std::mt19937;
+using std::vector;
 
 class MonteCarloPricer 
 {
@@ -31,6 +36,8 @@ public:
     MonteCarloResult delta_pathwise(const Option& option, double spot, double r, double sigma) const;
 
     // discrétisation d'Euler-Maruyama
-    std::vector<double> generate_path(double spot, double T, int m, double r, double sigma, std::mt19937& gen) const;
+    vector<double> generate_path(double spot, double T, int m, double r, double sigma, mt19937& gen) const;
+
+    MonteCarloResult price_v5(const Option& option, double spot, double r, double sigma, int m, mt19937& gen) const;
 
 };

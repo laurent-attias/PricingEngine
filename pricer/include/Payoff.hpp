@@ -1,6 +1,8 @@
 #pragma once
 #include <algorithm>
 
+using std::max;
+
 class Payoff
 {
     private:
@@ -22,7 +24,7 @@ class PayoffCall : public Payoff
         PayoffCall(double K) : Payoff(K) {}
         double operator()(double spot) const override
         {
-            return std::max(spot - getStrike(), 0.0);
+            return max(spot - getStrike(), 0.0);
         }
         double derivative(double spot) const override
         {
@@ -36,7 +38,7 @@ class PayoffPut : public Payoff
         PayoffPut(double K) : Payoff(K) {}
         double operator()(double spot) const override
         {
-            return std::max(getStrike() - spot, 0.0);
+            return max(getStrike() - spot, 0.0);
         }
         double derivative(double spot) const override 
         {

@@ -1,24 +1,32 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <vector>
 
 #include "MonteCarloPricer.hpp"
 
+using std::chrono::system_clock;
+using std::exp;
+using std::mt19937;
+using std::normal_distribution;
+using std::sqrt;
+using std::vector;
+
 MonteCarloResult MonteCarloPricer::price_v1(const Option &option, double spot, double r, double sigma) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
     double sum = 0.0;
     double sum_sq = 0.0;
     for (int i = 0; i < N; i++)
     {
         double Z = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double spot_i = spot * exp(drift + vol_term * Z);
         double payoff_i = option.calculerPayoff(spot_i);
         double Y_i = actualization * payoff_i;
         sum += Y_i;
@@ -26,27 +34,27 @@ MonteCarloResult MonteCarloPricer::price_v1(const Option &option, double spot, d
     }
     double mean = sum / N;
     double variance = 1.0 / (N - 1) * (sum_sq - N * mean * mean);
-    double error_margin = 1.96 * std::sqrt(variance / N);
+    double error_margin = 1.96 * sqrt(variance / N);
     return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
 
 MonteCarloResult MonteCarloPricer::price_v2(const Option &option, double spot, double r, double sigma) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
     double sum = 0.0;
     double sum_sq = 0.0;
     int M = N / 2;
     for (int i = 0; i < M; i++)
     {
         double Z = dist(gen);
-        double spot_i1 = spot * std::exp(drift + vol_term * Z);
-        double spot_i2 = spot * std::exp(drift - vol_term * Z);
+        double spot_i1 = spot * exp(drift + vol_term * Z);
+        double spot_i2 = spot * exp(drift - vol_term * Z);
         double payoff_i1 = option.calculerPayoff(spot_i1);
         double payoff_i2 = option.calculerPayoff(spot_i2);
         double payoff_i = (payoff_i1 + payoff_i2) * 0.5;
@@ -56,19 +64,19 @@ MonteCarloResult MonteCarloPricer::price_v2(const Option &option, double spot, d
     }
     double mean = sum / M;
     double variance = 1.0 / (M - 1) * (sum_sq - M * mean * mean);
-    double error_margin = 1.96 * std::sqrt(variance / M);
+    double error_margin = 1.96 * sqrt(variance / M);
     return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
 
 MonteCarloResult MonteCarloPricer::price_v3(const Option &option, double spot, double r, double sigma) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
     double sum_Y = 0.0;
     double sum_X = 0.0;
     double sum_sq_Y = 0.0;
@@ -77,7 +85,7 @@ MonteCarloResult MonteCarloPricer::price_v3(const Option &option, double spot, d
     for (int i = 0; i < N; i++)
     {
         double Z = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double spot_i = spot * exp(drift + vol_term * Z);
         double X_i = actualization * spot_i;
         double payoff_i = option.calculerPayoff(spot_i);
         double Y_i = actualization * payoff_i;
@@ -95,19 +103,19 @@ MonteCarloResult MonteCarloPricer::price_v3(const Option &option, double spot, d
     double c = covar_YX / var_X;
     double mean_Y_cv = mean_Y - c * (mean_X - spot);
     double var_Y_cv = var_Y - covar_YX * covar_YX / var_X;
-    double error_margin = 1.96 * std::sqrt(var_Y_cv / N);
+    double error_margin = 1.96 * sqrt(var_Y_cv / N);
     return MonteCarloResult{mean_Y_cv, mean_Y_cv - error_margin, mean_Y_cv + error_margin};
 }
 
 MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, double r, double sigma, int n) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
 
     // phase pilote
 
@@ -119,7 +127,7 @@ MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, d
     for (int i = 0; i < n; i++)
     {
         double Z = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double spot_i = spot * exp(drift + vol_term * Z);
         double X_i = actualization * spot_i;
         double payoff_i = option.calculerPayoff(spot_i);
         double Y_i = actualization * payoff_i;
@@ -143,7 +151,7 @@ MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, d
     for (int i = 0; i < N; i++)
     {
         double Z = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z);
+        double spot_i = spot * exp(drift + vol_term * Z);
         double X_i = actualization * spot_i;
         double payoff_i = option.calculerPayoff(spot_i);
         double Y_i = actualization * payoff_i;
@@ -153,27 +161,27 @@ MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, d
     }
     double mean_Y_cv = sum_Y_cv / N;
     double var_Y_cv = 1.0 / (N - 1) * (sum_sq_Y_cv - N * mean_Y_cv * mean_Y_cv);
-    double error_margin = 1.96 * std::sqrt(var_Y_cv / N);
+    double error_margin = 1.96 * sqrt(var_Y_cv / N);
     return MonteCarloResult{mean_Y_cv, mean_Y_cv - error_margin, mean_Y_cv + error_margin};
 }
 
 
 MonteCarloResult MonteCarloPricer::delta_bumping(const Option &option, double spot, double r, double sigma, double epsilon) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
     double sum = 0.0;
     double sum_sq = 0.0;
     for (int i = 0; i < N; i++)
     {
         double Z_i = dist(gen);
-        double spot_i_plus = (spot + epsilon) * std::exp(drift + vol_term * Z_i);
-        double spot_i_minus = (spot - epsilon) * std::exp(drift + vol_term * Z_i);
+        double spot_i_plus = (spot + epsilon) * exp(drift + vol_term * Z_i);
+        double spot_i_minus = (spot - epsilon) * exp(drift + vol_term * Z_i);
         double payoff_i_plus = option.calculerPayoff(spot_i_plus);
         double payoff_i_minus = option.calculerPayoff(spot_i_minus);
         double Delta_i = actualization * (payoff_i_plus - payoff_i_minus) / (2 * epsilon);
@@ -183,7 +191,7 @@ MonteCarloResult MonteCarloPricer::delta_bumping(const Option &option, double sp
 
     double mean = sum / N;
     double variance = 1.0 / (N - 1) * (sum_sq - N * mean * mean);
-    double error_margin = 1.96 * std::sqrt(variance / N);
+    double error_margin = 1.96 * sqrt(variance / N);
     return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
 
@@ -191,36 +199,36 @@ MonteCarloResult MonteCarloPricer::delta_bumping(const Option &option, double sp
 
 MonteCarloResult MonteCarloPricer::delta_pathwise(const Option& option, double spot, double r, double sigma) const
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(static_cast<unsigned int>(seed));
-    std::normal_distribution<double> dist(0.0, 1.0);
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    normal_distribution<double> dist(0.0, 1.0);
 
     double drift = (r - 0.5 * sigma * sigma) * option.getMaturite();
-    double vol_term = sigma * std::sqrt(option.getMaturite());
-    double actualization = std::exp(-r * option.getMaturite());
+    double vol_term = sigma * sqrt(option.getMaturite());
+    double actualization = exp(-r * option.getMaturite());
     double sum = 0.0;
     double sum_sq = 0.0;
     for (int i=0; i<N; i++)
     {
         double Z_i = dist(gen);
-        double spot_i = spot * std::exp(drift + vol_term * Z_i);
+        double spot_i = spot * exp(drift + vol_term * Z_i);
         double delta_i = actualization * option.derivePayoff(spot_i) * spot_i / spot ;
         sum += delta_i ;
         sum_sq += delta_i * delta_i ;
     }
     double mean = sum / N;
     double variance = 1.0 / (N - 1) * (sum_sq - N * mean * mean);
-    double error_margin = 1.96 * std::sqrt(variance / N);
+    double error_margin = 1.96 * sqrt(variance / N);
     return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
 
-std::vector<double> MonteCarloPricer::generate_path(double spot, double T, int m, double r, double sigma, std::mt19937& gen) const
+vector<double> MonteCarloPricer::generate_path(double spot, double T, int m, double r, double sigma, mt19937& gen) const
 {
-    std::normal_distribution<double> dist(0.0, 1.0);
+    normal_distribution<double> dist(0.0, 1.0);
     double dt = T / m ;
     double drift = (r - 0.5 * sigma * sigma) *  dt ;
-    double vol_term = sigma * std::sqrt(dt);
-    std::vector<double> S;
+    double vol_term = sigma * sqrt(dt);
+    vector<double> S;
     S.reserve(m+1);
     S.push_back(spot);
     for (int k=1; k<m+1; k++)
@@ -233,3 +241,17 @@ std::vector<double> MonteCarloPricer::generate_path(double spot, double T, int m
     return S;
 }
 
+MonteCarloResult MonteCarloPricer::price_v5(const Option& option, double spot, double r, double sigma, int m, mt19937& gen) const
+{
+    double sum = 0.0;
+    double sum_sq = 0.0;
+    for (int i=0; i<N; i++)
+    {
+        vector<double> S = generate_path(spot, option.getMaturite(), m, r, sigma, gen);
+        double mean_spot = 0.0;
+        for (int k; k<m+1; k++)
+        {
+            mean_spot
+        }
+    }
+}

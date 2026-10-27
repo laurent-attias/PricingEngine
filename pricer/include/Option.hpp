@@ -2,6 +2,10 @@
 #include <memory>
 #include "Payoff.hpp"
 
+using std::make_unique;
+using std::move;
+using std::unique_ptr;
+
 struct MonteCarloResult
 {
     double estimated_value;
@@ -13,12 +17,12 @@ class Option
 {
 protected:
     double maturite;
-    std::unique_ptr<Payoff> payoff;
+    unique_ptr<Payoff> payoff;
     double d_1(double spot, double r, double sigma) const;
     double d_2(double spot, double r, double sigma) const;
 
 public:
-    Option(double T, std::unique_ptr<Payoff> p) : maturite(T), payoff(std::move(p)) {}
+    Option(double T, unique_ptr<Payoff> p) : maturite(T), payoff(move(p)) {}
 
     double calculerPayoff(double spot) const
     {
@@ -49,7 +53,7 @@ public:
 class OptionCall : public Option
 {
 public:
-    OptionCall(double T, double strike) : Option(T, std::make_unique<PayoffCall>(strike)) {}
+    OptionCall(double T, double strike) : Option(T, make_unique<PayoffCall>(strike)) {}
     double bs_price(double spot, double r, double sigma) const override;
     double delta(double spot, double r, double sigma) const override;
     double theta(double spot, double r, double sigma) const override;
@@ -59,7 +63,7 @@ public:
 class OptionPut : public Option
 {
 public:
-    OptionPut(double T, double strike) : Option(T, std::make_unique<PayoffPut>(strike)) {}
+    OptionPut(double T, double strike) : Option(T, make_unique<PayoffPut>(strike)) {}
     double bs_price(double spot, double r, double sigma) const override;
     double delta(double spot, double r, double sigma) const override;
     double theta(double spot, double r, double sigma) const override;

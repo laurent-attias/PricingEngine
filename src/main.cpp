@@ -4,6 +4,8 @@
 #include "Option.hpp"
 #include "MonteCarloPricer.hpp"
 
+using std::cout;
+
 int main()
 {
     SetConsoleOutputCP(65001);
@@ -17,14 +19,14 @@ int main()
     int n = 1000;
     double epsilon = 1e-6;
     OptionCall call(T, strike);
-    std::cout << "prix via Black-Scholes : " << call.bs_price(spot, r, sigma) << "\n";
+    cout << "prix via Black-Scholes : " << call.bs_price(spot, r, sigma) << "\n";
     MonteCarloPricer pricer(N);
     double delta = call.delta(spot, r, sigma);
     MonteCarloResult bumping_result = pricer.delta_bumping(call, spot, r, sigma, epsilon);
     MonteCarloResult pathwise_result = pricer.delta_pathwise(call, spot, r, sigma);
-    std::cout << "delta exact : " << delta << "\n";
-    std::cout << "delta approché par méthode bumping : " << bumping_result.estimated_value << "\n";
-    std::cout << "intervalle de confiance : [" << bumping_result.lower_bound << "," << bumping_result.upper_bound << "]" << "\n";
-    std::cout << "delta approché par méthode pathwise :" << pathwise_result.estimated_value << "\n";
-    std::cout << "intervalle de confiance : [" << pathwise_result.lower_bound << "," << pathwise_result.upper_bound << "]" << "\n";
+    cout << "delta exact : " << delta << "\n";
+    cout << "delta approché par méthode bumping : " << bumping_result.estimated_value << "\n";
+    cout << "intervalle de confiance : [" << bumping_result.lower_bound << "," << bumping_result.upper_bound << "]" << "\n";
+    cout << "delta approché par méthode pathwise :" << pathwise_result.estimated_value << "\n";
+    cout << "intervalle de confiance : [" << pathwise_result.lower_bound << "," << pathwise_result.upper_bound << "]" << "\n";
 }
