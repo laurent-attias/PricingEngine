@@ -1,7 +1,7 @@
 #pragma once
 #include "Option.hpp"
 
-class MonteCarloPricer
+class MonteCarloPricer 
 {
 protected:
     int N;
@@ -29,5 +29,8 @@ public:
 
     // calcul du Delta par pathwise
     MonteCarloResult delta_pathwise(const Option& option, double spot, double r, double sigma) const;
+
+    // discrétisation d'Euler-Maruyama
+    std::vector<double> generate_path(double spot, double T, int m, double r, double sigma, std::mt19937& gen) const;
 
 };

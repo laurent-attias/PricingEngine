@@ -213,3 +213,23 @@ MonteCarloResult MonteCarloPricer::delta_pathwise(const Option& option, double s
     double error_margin = 1.96 * std::sqrt(variance / N);
     return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
+
+std::vector<double> MonteCarloPricer::generate_path(double spot, double T, int m, double r, double sigma, std::mt19937& gen) const
+{
+    std::normal_distribution<double> dist(0.0, 1.0);
+    double dt = T / m ;
+    double drift = (r - 0.5 * sigma * sigma) *  dt ;
+    double vol_term = sigma * std::sqrt(dt);
+    std::vector<double> S;
+    S.reserve(m+1);
+    S.push_back(spot);
+    for (int k=1; k<m+1; k++)
+    {
+        double Z_k = dist(gen);
+        S.push_back(
+            S[k-1]*exp(drift + vol_term * Z_k)
+        );
+    }
+    return S;
+}
+
