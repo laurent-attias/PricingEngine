@@ -2,7 +2,7 @@
 #include <random>
 #include <chrono>
 
-#include "../pricer/include/MonteCarloPricer.hpp"
+#include "MonteCarloPricer.hpp"
 
 MonteCarloResult MonteCarloPricer::price_v1(const Option &option, double spot, double r, double sigma) const
 {

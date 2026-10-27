@@ -2,8 +2,8 @@
 #include <random>
 #include <chrono>
 
-#include "../pricer/include/Option.hpp"
-#include "../pricer/include/MathUtils.hpp"
+#include "Option.hpp"
+#include "MathUtils.hpp"
 
 double Option::d_1(double spot, double r, double sigma) const
 {

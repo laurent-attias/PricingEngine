@@ -1,5 +1,5 @@
 #include <cmath>
-#include "../pricer/include/MathUtils.hpp"
+#include "MathUtils.hpp"
 
 double norm_cdf(double x)
 {

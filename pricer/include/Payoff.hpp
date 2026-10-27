@@ -26,7 +26,7 @@ class PayoffCall : public Payoff
         }
         double derivative(double spot) const override
         {
-            return (spot > getStrike()) ? 1.0: -1.0;
+            return (spot > getStrike()) ? 1.0: 0.0;
         }
 };
 

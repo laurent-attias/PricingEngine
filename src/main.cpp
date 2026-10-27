@@ -1,8 +1,8 @@
 #include <iostream>
 #include <windows.h>
 
-#include "../pricer/include/Option.hpp"
-#include "../pricer/include/MonteCarloPricer.hpp"
+#include "Option.hpp"
+#include "MonteCarloPricer.hpp"
 
 int main()
 {
@@ -25,6 +25,6 @@ int main()
     std::cout << "delta exact : " << delta << "\n";
     std::cout << "delta approché par méthode bumping : " << bumping_result.estimated_value << "\n";
     std::cout << "intervalle de confiance : [" << bumping_result.lower_bound << "," << bumping_result.upper_bound << "]" << "\n";
-    std::cout << "delta approché par méthode pathwise" << pathwise_result.estimated_value << "\n";
+    std::cout << "delta approché par méthode pathwise :" << pathwise_result.estimated_value << "\n";
     std::cout << "intervalle de confiance : [" << pathwise_result.lower_bound << "," << pathwise_result.upper_bound << "]" << "\n";
 }
