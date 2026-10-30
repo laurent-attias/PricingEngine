@@ -18,7 +18,6 @@ int main()
     double sigma = 0.2;
     int N = 100000;
     int m = 1000;
-    double epsilon = 1e-6;
     OptionCallAsiat call(T, strike);
     MonteCarloPricer pricer(N);
     MonteCarloResult result = pricer.price_v5(call, spot, r, sigma, m);

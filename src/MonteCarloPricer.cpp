@@ -129,7 +129,6 @@ MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, d
 
     double sum_Y = 0.0;
     double sum_X = 0.0;
-    double sum_sq_Y = 0.0;
     double sum_sq_X = 0.0;
     double sum_YX = 0.0;
     for (int i = 0; i < n; i++)
@@ -141,13 +140,11 @@ MonteCarloResult MonteCarloPricer::price_v4(const Option &option, double spot, d
         double Y_i = actualization * payoff_i;
         sum_Y += Y_i;
         sum_X += X_i;
-        sum_sq_Y += Y_i * Y_i;
         sum_sq_X += X_i * X_i;
         sum_YX += Y_i * X_i;
     }
     double mean_Y = sum_Y / n;
     double mean_X = sum_X / n;
-    double var_Y = 1.0 / (n - 1) * (sum_sq_Y - n * mean_Y * mean_Y);
     double var_X = 1.0 / (n - 1) * (sum_sq_X - n * mean_X * mean_X);
     double covar_YX = 1.0 / (n - 1) * (sum_YX - n * mean_X * mean_Y);
     double c = covar_YX / var_X;

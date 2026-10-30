@@ -1,7 +1,10 @@
 #include <pybind11/pybind11.h>
+#include <sstream>
 #include "MonteCarloPricer.hpp"
 
 namespace py = pybind11;
+
+using std::ostringstream;
 
 PYBIND11_MODULE(pricer_module, m)
 {
@@ -10,7 +13,12 @@ PYBIND11_MODULE(pricer_module, m)
     py::class_<MonteCarloResult>(m, "MonteCarloResult")
         .def_readonly("estimated_value", &MonteCarloResult::estimated_value)
         .def_readonly("lower_bound", &MonteCarloResult::lower_bound)
-        .def_readonly("upper_bound", &MonteCarloResult::upper_bound);
+        .def_readonly("upper_bound", &MonteCarloResult::upper_bound)
+        .def("__repr__", [](const MonteCarloResult& res) {
+          ostringstream oss;
+          oss << res;
+          return oss.str();
+        });
 
     py::class_<MonteCarloPricer>(m, "MonteCarloPricer")
         .def(py::init<int>(),
