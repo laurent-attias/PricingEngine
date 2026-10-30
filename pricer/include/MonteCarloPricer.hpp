@@ -6,6 +6,16 @@
 using std::mt19937;
 using std::vector;
 
+struct MonteCarloResult
+{
+    double estimated_value;
+    double lower_bound;
+    double upper_bound;
+};
+
+ostream& operator<<(ostream& os, const MonteCarloResult& res);
+
+
 class MonteCarloPricer 
 {
 protected:
@@ -33,11 +43,12 @@ public:
     MonteCarloResult delta_bumping(const Option& option, double spot, double r, double sigma, double epsilon) const;
 
     // calcul du Delta par pathwise
-    MonteCarloResult delta_pathwise(const Option& option, double spot, double r, double sigma) const;
+    MonteCarloResult delta_pathwise(const OptionEurope& option, double spot, double r, double sigma) const;
 
     // discrétisation d'Euler-Maruyama
     vector<double> generate_path(double spot, double T, int m, double r, double sigma, mt19937& gen) const;
 
+    // calcul pour une option asiatique
     MonteCarloResult price_v5(const Option& option, double spot, double r, double sigma, int m, mt19937& gen) const;
 
 };

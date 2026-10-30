@@ -1,71 +1,84 @@
 #pragma once
 #include <memory>
+#include <vector>
+
 #include "Payoff.hpp"
 
 using std::make_unique;
 using std::move;
 using std::unique_ptr;
+using std::vector;
+using std::ostream;
 
-struct MonteCarloResult
-{
-    double estimated_value;
-    double lower_bound;
-    double upper_bound;
-};
 
 class Option
 {
 protected:
     double maturite;
     unique_ptr<Payoff> payoff;
-    double d_1(double spot, double r, double sigma) const;
-    double d_2(double spot, double r, double sigma) const;
 
 public:
     Option(double T, unique_ptr<Payoff> p) : maturite(T), payoff(move(p)) {}
 
-    double calculerPayoff(double spot) const
+    template <typename T>
+    double calculerPayoff(const T& input) const
     {
-        return payoff->operator()(spot);
-    }
-    double derivePayoff(double spot) const
-    {
-        return payoff->derivative(spot);
+        return payoff->operator()(input);
     }
 
     double getMaturite() const
     {
         return maturite;
     }
+    virtual ~Option() = default;
+};
+
+
+class OptionEurope : public Option
+{
+protected:
+    double d_1(double spot, double r, double sigma) const;
+    double d_2(double spot, double r, double sigma) const;
+public:
+    OptionEurope(double T, unique_ptr<PayoffEurope> p) : Option(T, move(p)) {}
+    double derivePayoff(double spot) const;
 
     // Black-Scholes pricer
     virtual double bs_price(double spot, double r, double sigma) const = 0;
 
     // greeks
-    virtual double delta(double spot, double r, double sigma) const = 0;
-    virtual ~Option() = default;
     double gamma(double spot, double r, double sigma) const;
     double vega(double spot, double r, double sigma) const;
+    virtual double delta(double spot, double r, double sigma) const = 0;
     virtual double theta(double spot, double r, double sigma) const = 0;
     virtual double rho(double spot, double r, double sigma) const = 0;
 };
 
-class OptionCall : public Option
+
+
+class OptionCallEurope : public OptionEurope
 {
 public:
-    OptionCall(double T, double strike) : Option(T, make_unique<PayoffCall>(strike)) {}
+    OptionCallEurope(double T, double strike) : OptionEurope(T, make_unique<PayoffCallEurope>(strike)) {}
     double bs_price(double spot, double r, double sigma) const override;
     double delta(double spot, double r, double sigma) const override;
     double theta(double spot, double r, double sigma) const override;
     double rho(double spot, double r, double sigma) const override;
 };
 
-class OptionPut : public Option
+
+class OptionPutEurope : public OptionEurope
 {
 public:
-    OptionPut(double T, double strike) : Option(T, make_unique<PayoffPut>(strike)) {}
+    OptionPutEurope(double T, double strike) : OptionEurope(T, make_unique<PayoffPutEurope>(strike)) {}
     double bs_price(double spot, double r, double sigma) const override;
     double delta(double spot, double r, double sigma) const override;
     double theta(double spot, double r, double sigma) const override;
     double rho(double spot, double r, double sigma) const override;
+};
+
+class OptionCallAsiat : public Option
+{
+public:
+    OptionCallAsiat(double T, double strike) : Option(T, make_unique<PayoffCallAsiat>(strike)) {};
 };

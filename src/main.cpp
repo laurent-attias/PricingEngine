@@ -1,10 +1,12 @@
 #include <iostream>
 #include <windows.h>
+#include <chrono>
 
 #include "Option.hpp"
 #include "MonteCarloPricer.hpp"
 
 using std::cout;
+using std::chrono::system_clock;
 
 int main()
 {
@@ -16,17 +18,12 @@ int main()
     double r = 0.05;
     double sigma = 0.2;
     int N = 100000;
-    int n = 1000;
+    int m = 1000;
     double epsilon = 1e-6;
-    OptionCall call(T, strike);
-    cout << "prix via Black-Scholes : " << call.bs_price(spot, r, sigma) << "\n";
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
+    OptionCallAsiat call(T, strike);
     MonteCarloPricer pricer(N);
-    double delta = call.delta(spot, r, sigma);
-    MonteCarloResult bumping_result = pricer.delta_bumping(call, spot, r, sigma, epsilon);
-    MonteCarloResult pathwise_result = pricer.delta_pathwise(call, spot, r, sigma);
-    cout << "delta exact : " << delta << "\n";
-    cout << "delta approché par méthode bumping : " << bumping_result.estimated_value << "\n";
-    cout << "intervalle de confiance : [" << bumping_result.lower_bound << "," << bumping_result.upper_bound << "]" << "\n";
-    cout << "delta approché par méthode pathwise :" << pathwise_result.estimated_value << "\n";
-    cout << "intervalle de confiance : [" << pathwise_result.lower_bound << "," << pathwise_result.upper_bound << "]" << "\n";
+    MonteCarloResult result = pricer.price_v5(call, spot, r, sigma, m, gen);
+    cout << result ;
 }

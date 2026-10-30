@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 #include <random>
 #include <chrono>
 #include <vector>
@@ -11,6 +12,13 @@ using std::mt19937;
 using std::normal_distribution;
 using std::sqrt;
 using std::vector;
+
+ostream& operator<<(ostream& os, const MonteCarloResult& res)
+{
+    os << "Valeur estimée : " << res.estimated_value << "\n";
+    os << "intervalle de confiance : [" << res.lower_bound << "," << res.upper_bound << "]" << "\n";
+    return os;
+}
 
 MonteCarloResult MonteCarloPricer::price_v1(const Option &option, double spot, double r, double sigma) const
 {
@@ -197,7 +205,7 @@ MonteCarloResult MonteCarloPricer::delta_bumping(const Option &option, double sp
 
 // calcul du Delta par pathwise
 
-MonteCarloResult MonteCarloPricer::delta_pathwise(const Option& option, double spot, double r, double sigma) const
+MonteCarloResult MonteCarloPricer::delta_pathwise(const OptionEurope& option, double spot, double r, double sigma) const
 {
     auto seed = system_clock::now().time_since_epoch().count();
     mt19937 gen(static_cast<unsigned int>(seed));
@@ -245,13 +253,17 @@ MonteCarloResult MonteCarloPricer::price_v5(const Option& option, double spot, d
 {
     double sum = 0.0;
     double sum_sq = 0.0;
+    double actualization = exp(-r * option.getMaturite());
     for (int i=0; i<N; i++)
     {
-        vector<double> S = generate_path(spot, option.getMaturite(), m, r, sigma, gen);
-        double mean_spot = 0.0;
-        for (int k; k<m+1; k++)
-        {
-            mean_spot
-        }
+        vector<double> S_i = generate_path(spot, option.getMaturite(), m, r, sigma, gen);
+        double payoff_i = option.calculerPayoff(S_i);
+        double Y_i = actualization * payoff_i ;        
+        sum += Y_i;
+        sum_sq += Y_i * Y_i;
     }
+    double mean = sum / N;
+    double variance = 1.0 / (N - 1) * (sum_sq - N * mean * mean);
+    double error_margin = 1.96 * sqrt(variance / N);
+    return MonteCarloResult{mean, mean - error_margin, mean + error_margin};
 }
