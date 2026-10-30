@@ -6,7 +6,6 @@
 #include "MonteCarloPricer.hpp"
 
 using std::cout;
-using std::chrono::system_clock;
 
 int main()
 {
@@ -20,10 +19,8 @@ int main()
     int N = 100000;
     int m = 1000;
     double epsilon = 1e-6;
-    auto seed = system_clock::now().time_since_epoch().count();
-    mt19937 gen(static_cast<unsigned int>(seed));
     OptionCallAsiat call(T, strike);
     MonteCarloPricer pricer(N);
-    MonteCarloResult result = pricer.price_v5(call, spot, r, sigma, m, gen);
+    MonteCarloResult result = pricer.price_v5(call, spot, r, sigma, m);
     cout << result ;
 }

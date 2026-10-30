@@ -49,6 +49,6 @@ public:
     vector<double> generate_path(double spot, double T, int m, double r, double sigma, mt19937& gen) const;
 
     // calcul pour une option asiatique
-    MonteCarloResult price_v5(const Option& option, double spot, double r, double sigma, int m, mt19937& gen) const;
+    MonteCarloResult price_v5(const Option& option, double spot, double r, double sigma, int m) const;
 
 };

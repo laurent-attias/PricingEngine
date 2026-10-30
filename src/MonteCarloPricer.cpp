@@ -249,8 +249,10 @@ vector<double> MonteCarloPricer::generate_path(double spot, double T, int m, dou
     return S;
 }
 
-MonteCarloResult MonteCarloPricer::price_v5(const Option& option, double spot, double r, double sigma, int m, mt19937& gen) const
+MonteCarloResult MonteCarloPricer::price_v5(const Option& option, double spot, double r, double sigma, int m) const
 {
+    auto seed = system_clock::now().time_since_epoch().count();
+    mt19937 gen(static_cast<unsigned int>(seed));
     double sum = 0.0;
     double sum_sq = 0.0;
     double actualization = exp(-r * option.getMaturite());
