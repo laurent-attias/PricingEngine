@@ -82,3 +82,9 @@ class OptionCallAsiat : public Option
 public:
     OptionCallAsiat(double T, double strike) : Option(T, make_unique<PayoffCallAsiat>(strike)) {};
 };
+
+class OptionPutAsiat : public Option
+{
+public:
+    OptionPutAsiat(double T, double strike) : Option(T, make_unique<PayoffPutAsiat>(strike)) {};
+};

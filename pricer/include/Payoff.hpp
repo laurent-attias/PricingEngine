@@ -90,6 +90,21 @@ public:
     }
 };
 
+class PayoffPutAsiat : public PayoffPut
+{
+public:
+    PayoffPutAsiat(double K) : Payoff(K), PayoffPut(K) {}
+    double operator()(double spot) const override
+    {
+        throw logic_error("Ce payoff nécessite une trajectoire complète et non un spot terminal.");
+    }
+    double operator()(const vector<double> &path) const override
+    {
+        double mean_spot = accumulate(path.begin(), path.end(), 0.0) / path.size();
+        return PayoffPut::operator()(mean_spot);
+    }
+};
+
 class PayoffDigital : public Payoff
 {
 public:
