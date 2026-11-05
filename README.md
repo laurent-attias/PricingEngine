@@ -98,7 +98,7 @@ python -m venv env
 .\env\Scripts\Activate.ps1
 
 # Installation des dépendances
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Compilation avec MinGW64 sous Windows
 python setup.py build_ext --inplace --compiler=mingw32
