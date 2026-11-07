@@ -2,6 +2,7 @@
 build
 .agents
 env
+test.py
 *.pyd
 *.ipynb
 
