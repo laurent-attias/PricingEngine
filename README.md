@@ -59,7 +59,7 @@ Dans le graphique ci-dessous, on compare différentes variantes de la méthode d
 - v3 : méthode avec réduction de variance par variables de contrôle (approche en une passe) `MonteCarloPricer::price_v3`
 - v4 : méthode avec réduction de variance par variables de contrôle (approche pilote) ``MonteCarloPricer::price_v4`
 
-![Comparaison de variantes de méthodes de Monte-Carlo](output/simulation.png)
+![Comparaison de variantes de méthodes de Monte-Carlo](output/comparison.png)
 
 ---
 
