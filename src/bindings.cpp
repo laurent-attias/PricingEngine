@@ -57,4 +57,9 @@ PYBIND11_MODULE(pricer_module, m)
         .def(py::init<double, double>(),
              py::arg("T"),
              py::arg("strike"));
+
+     py::class_<OptionCallEurope, Option>(m, "OptionCallEurope")
+          .def(py::init<double, double>(),
+               py::arg("T"),
+               py::arg("strike"));
 }

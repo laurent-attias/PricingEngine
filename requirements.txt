@@ -1,2 +1,4 @@
 pybind11
 setuptools
+numpy
+matplotlib
