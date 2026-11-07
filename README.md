@@ -48,7 +48,7 @@ Toutes les estimations Monte-Carlo retournent une structure `MonteCarloResult` c
 
 On considère une option call européenne avec les paramètres suivants : $T = 1$, $K = 100$, $S_T = 100$, $r = 0.05$, $sigma = 0.2$.
 
-Dans le graphique ci-dessous, on vérifie expérimentalement la convergence de la méthode de Monte-Carlo sur la détermination de la valeur de l'option, avec la réduction de la largeur de l'intervalle de convergence typique en $O\left(\dfrac{1}{\sqrt{N}\right)$.
+Dans le graphique ci-dessous, on vérifie expérimentalement la convergence de la méthode de Monte-Carlo sur la détermination de la valeur de l'option, avec la réduction de la largeur de l'intervalle de convergence typique en $O\left(\dfrac{1}{\sqrt{N}}\right)$.
 
 ![Simulation par la méthode de Monte-Carlo du prix d'une option call européenne](output/simulation.png)
 
