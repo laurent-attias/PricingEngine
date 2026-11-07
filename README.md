@@ -44,6 +44,25 @@ Toutes les estimations Monte-Carlo retournent une structure `MonteCarloResult` c
 
 ---
 
+## Exemples de simulations
+
+On considère une option call européenne avec les paramètres suivants : $T = 1$, $K = 100$, $S_T = 100$, $r = 0.05$, $sigma = 0.2$.
+
+Dans le graphique ci-dessous, on vérifie expérimentalement la convergence de la méthode de Monte-Carlo sur la détermination de la valeur de l'option, avec la réduction de la largeur de l'intervalle de convergence typique en $O\left(\dfrac{1}{\sqrt{N}}\right)$.
+
+![Simulation par la méthode de Monte-Carlo du prix d'une option call européenne](output/simulation.png)
+
+Dans le graphique ci-dessous, on compare différentes variantes de la méthode de Monte-Carlo sur ce même problème : 
+
+- v1 : méthode naïve `MonteCarloPricer::price_v1`
+- v2 : méthode avec réduction de variance par variables antithétiques `MonteCarloPricer::price_v2`
+- v3 : méthode avec réduction de variance par variables de contrôle (approche en une passe) `MonteCarloPricer::price_v3`
+- v4 : méthode avec réduction de variance par variables de contrôle (approche pilote) ``MonteCarloPricer::price_v4`
+
+![Comparaison de variantes de méthodes de Monte-Carlo](output/simulation.png)
+
+---
+
 ## Structure du projet
 
 ```text
