@@ -3,7 +3,6 @@ build
 .agents
 env
 *.pyd
-output
 
 # Prerequisites
 *.d
